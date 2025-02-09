@@ -1,0 +1,93 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam dpi 300
+abstract class GameElement{
++{abstract}x : Float
++ {abstract}y : Float
++nextFrame()
++fun isDead() : Boolean
+#{abstract}fun onDeath()
+'+sizeInPx : Int
+'+bitmap : Bitmap
+'+draw(canvas : Canvas)
+'+resizeBitmap(bitmap)
+}
+
+abstract class Entity{
+# {abstract} HP
++changeHP(damage : Int)
+}
+
+abstract class Enemy{
+
+}
+
+
+class NormalZombie{
++{static} generationProbability : Int
+}
+class ZombieSunStealer{
++{static} generationProbability : Int
+-stealSun()
+}
+
+class ConeZombie {
++{static} generationProbability : Int
+}
+
+abstract class Defense{
++{abstract} square : BoardButton
++getBoosted()
+}
+abstract class ActiveDefense{
+}
+together{
+
+abstract class Shooter{
+#{abstract} shootProjectile(context : Context)
+#{abstract} shootingDelay : Int
+}
+
+class NormalPlant{
++ {static} PRICE : Int
+}
+
+class FastPlant{
++ {static} PRICE : Int
+}
+
+class KnockbackPlant{
++ {static} PRICE : Int
+}
+
+class IcePlant{
++ {static} PRICE : Int
+}
+class FirePlant{
++ {static} PRICE : Int
+}
+}
+
+'FreezingProjectile "1" -> "1" Enemy : freeze
+'BurningProjectile "1" -> "1" Enemy : burn
+'KnockbackProjectile "1" -> "1" Enemy : knockback
+Shooter <|-- KnockbackPlant
+Shooter <|-- FastPlant
+ActiveDefense <|-- Shooter
+Entity <|- Defense
+
+ActiveDefense "*" -- "*" Enemy : Attack
+
+Shooter <|-- IcePlant
+Shooter <|-- NormalPlant
+Shooter <|-- FirePlant
+
+Enemy <|--ConeZombie
+Enemy <|--ZombieSunStealer
+Enemy <|-- NormalZombie
+GameElement <|- Entity
+Defense <|- ActiveDefense
+Entity <|-- Enemy
+
+
+@enduml

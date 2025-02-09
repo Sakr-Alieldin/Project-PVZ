@@ -1,0 +1,139 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+skinparam dpi 300
+
+autonumber
+actor "Player" as A
+participant "StartGameActivity" as sga
+participant "GameController" as GC
+participant "Enemy" as E
+participant "Defense" as D
+participant "Projectile" as P
+participant "Sun" as S
+participant "ShopButton" as SB
+participant "BoardButton" as BB
+participant "EntityFactory" as EF
+participant "LawnMower" as LM
+
+activate A
+A -> sga: click()
+activate A
+sga -> GC: startGame()
+activate sga
+activate GC
+GC --> sga: Game started
+deactivate sga
+deactivate A
+GC -> "LawnMower" as LM**: createLawnMower()
+loop Every 1 to 10 seconds
+    GC -> E: createEnemy
+    activate E
+    alt NormalZombie
+                      GC -> NormalZombie**: createNormalzombie()
+                      activate NormalZombie
+                  else ZombieSunStealer
+                      GC -> ZombieSunStealer**: createSunStealer()
+                        activate ZombieSunStealer
+                  end
+                  GC ->GC : newEnemyList.add(Enemy)
+end
+
+loop Every 1 to 10 seconds
+    GC -> S: createNaturalSun()
+    activate S
+end
+A -> S: click()
+S -> GC: addSun()
+deactivate S
+
+
+A -> SB: click()
+activate SB
+SB -> GC: changeclickedbutton(this)
+A -> BB: click()
+BB -> BB: checkPlant()
+activate BB
+
+alt Plant exists
+    alt ShovelButton selected
+
+        GC -> D: removePlant()
+        D -> GC: deadlist.add(plant)
+    else Fertilizer selected
+        D -> D: boost()
+    end
+else No plant
+    BB-> GC: checkSunCount()
+    GC --> BB: giveSuncount()
+    alt suncount >= plantCost
+    BB -> GC: createPlant(this)
+    GC -> EF: createPlant(plantType)
+    activate EF
+    EF -> D: createAppropriatePlant()
+    activate D
+    BB -> BB: setPlantOnButton(Plant)
+end
+end
+deactivate BB
+D -> E: checkZombie()
+alt Zombie exists
+    D -> P: createProjectile()
+    activate P
+
+    P -> E: ChangeHP()
+    P -> P: destroy()
+    deactivate P
+    E -> E: checkHP()
+    alt HP <= 0
+        E -> GC: DeadList.add(this)
+        E -> E: remove()
+        deactivate E
+    end
+
+else No zombie
+
+end
+
+NormalZombie -> TargetGetter: getTarget()
+activate TargetGetter
+activate MotionState
+TargetGetter -> NormalZombie: return Target
+alt Target exists
+    NormalZombie <- MotionState: move()
+    NormalZombie -> D : toutchOrNot(this)
+    D -> NormalZombie: return boolean
+    alt true
+        NormalZombie -> MotionState: StopMoving()
+        NormalZombie -> D: changeHP()
+    else False
+        NormalZombie -> MotionState: continueMoving()
+    end
+
+
+    alt HP <= 0
+        D -> GC: DeadList.add(this)
+        D -> D: remove()
+        deactivate D
+    end
+else No Target
+
+end
+ZombieSunStealer -> ZombieSunStealer: stealsun()
+ZombieSunStealer -> S: sun.setSpeedx20()
+
+NormalZombie -> GC: checkPosition()
+alt Position <= 0
+alt LawnMower exists
+    GC-> LM: activate()
+    activate LM
+    LM -> LM: move()
+    LM -> GC: removeEnemy()
+else No LawnMower
+    E -> GC: endGame()
+    GC -> endScreen: show()
+    activate endScreen
+end
+end
+
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam dpi 300
+
+
+interface Move{
++velocity
++updatePosition(gameElement)
+}
+abstract class Enemy{
+-motionState : MotionState
+-previousState : MotionState
++changeMotionState(MotionState)
+}
+interface MotionState{
++context : Enemy
++getNearestBurgerDirection(burgerList) : Boolean)
+
+}
+class Eating{
+}
+class Advancing{
+}
+class Retreating{
+}
+
+MotionState <|.. Eating
+MotionState <|.. Advancing
+MotionState <|.. Retreating
+Enemy "1" *-- "1" MotionState
+Move<|.. MotionState
+Move<|.. Enemy
+
+@enduml

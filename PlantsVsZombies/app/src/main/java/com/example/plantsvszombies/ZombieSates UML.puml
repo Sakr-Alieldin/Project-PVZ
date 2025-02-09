@@ -1,0 +1,61 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam dpi 300
+interface Attack{
++attackDamage
++ attack(target : Entity?)
+}
+
+enum TargetingMode{
+LEFT
+RIGHT
+AOE
+}
+
+TargetingMode <-- TargetGetter
+interface TargetGetter{
++direction : TargetingMode
++range : Int
++ x : Float
++ y : Float
++ getTargets(entityList, targetingMode = direction) : List<Entity>
+}
+
+interface Move{
++velocity
++updatePosition(gameElement)
+}
+abstract class Enemy{
+-containFertilizer : Boolean
+-motionState : MotionState
+-previousState : MotionState
++direction : TargetingMode
++defenseList
++burgerList
++isBurning : Boolean
++isFreezing : Boolean
++changeMotionState(MotionState)
++getAttracted(burger)
+}
+interface MotionState{
++context : Enemy
++getNearestBurgerDirection(burgerList) : Boolean)
+'+ mirrorBitmap(bitmap) : Bitmap
+}
+class Eating{
+}
+class Advancing{
+}
+class Retreating{
+}
+
+'TargetGetter <|.. MotionState
+MotionState <|.. Eating
+MotionState <|.. Advancing
+MotionState <|.. Retreating
+Enemy "1" *-- "1" MotionState
+Move<|.. MotionState
+TargetGetter<|.. Enemy
+Move <|.. Enemy
+Attack <|.. Enemy
+@enduml

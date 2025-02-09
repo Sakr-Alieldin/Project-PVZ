@@ -1,0 +1,348 @@
+
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam dpi 300
+
+class BoardButton{
++plantOnButton : Defense?
++placePlant()
+}
+Enemy "*" --> "*" Defense : Attack
+BoardButton "1"-->"1" Defense : boost
+GameControl "*"<--"1" BoardButton : checks selectedButton
+together {
+abstract class SelectableButton{
+- changeSelectedButton()
+}
+SelectableButton "*" --> "1"GameControl : changes selectedButton
+class ShopButton{
++price : Int
+}
+
+class ShovelButton{}
+
+class FertilizerButton{}
+}
+GameControl "1" <-- "*" Fertilizer : Increments fertilizerCount
+abstract class Resource<extends View>{
++{abstract} posX : Float
++{abstract} posY : Float
+'+{abstract} bitmap : Bitmap
+'+{abstract} sizeInPx : Int
+'+resizeBitmap()
++{abstract} nextFrame()
+#{abstract} handleTouch(...)
+#isTouched(...)
+
+}
+class Sun{
+-speedX
+-speedY
++setSpeedX(speed : Int)
+}
+class Fertilizer{
+}
+
+
+Resource <|-- Fertilizer
+SelectableButton <|-- ShopButton
+SelectableButton <|-- ShovelButton
+SelectableButton <|-- FertilizerButton
+interface Observer{
++update(arg : Boolean)
+}
+
+interface Observable{
++observer: MutableList<Observer>
++remove(observer : Observer)
++ add(observer : Observer)
++ notifyObservers(arg : Boolean)
+}
+
+Observer <|.. Shooter
+Observable <|.. Enemy
+Observable"*" o-- "*"Observer
+
+interface Move{
++velocity : Float
++updatePosition(gameElement)
+}
+
+Move<|.. Lawnmower
+Move<|.. MotionState
+Move<|.. Projectile
+Move <|.. Enemy
+
+interface MotionState{
++context : Enemy
++getNearestBurgerDirection(burgerList) : Boolean
+'+ mirrorBitmap(bitmap) : Bitmap
+}
+
+MotionState <|.. Eating
+MotionState <|.. Advancing
+MotionState <|.. Retreating
+MotionState "1" --* "1" Enemy
+
+interface Attack{
++attackDamage : Int
++ attack(target : Entity?)
+}
+
+Attack <|.. Lawnmower
+Attack <|.. Enemy
+Attack <|.. ActiveDefense
+Attack <|.. Projectile
+
+enum TargetingMode{
+LEFT
+RIGHT
+AOE
+}
+
+TargetingMode <-- TargetGetter
+interface TargetGetter{
++direction : TargetingMode
++range : Int
++ x : Float
++ y : Float
++ getTargets(entityList, targetingMode = direction) : List<Entity>
+}
+
+TargetGetter <|.. Enemy
+TargetGetter <|.. BurgerDefense
+TargetGetter <|.. Projectile
+TargetGetter <|.. Lawnmower
+
+EntityFactory "1"--* "1" GameControl
+class EntityFactory{
++createPlant(...) : Defense
++createEnemy(...) : Enemy
+}
+enum PlantType {
+    Sunflower
+    NormalPlant
+    FastPlant
+    KnockbackPlant
+    FreezePlant
+    FirePlant
+    Wallnut
+    BurgerDefense
+}
+
+enum EnemyType {
+    NormalZombie
+    ZombieSunStealer
+    ConeZombie
+}
+
+PlantType <-- EntityFactory
+EnemyType <-- EntityFactory
+
+class GameControl{
+'certaines fonctions pas écrites car pas utiles pour le diagramme
+'+defenseList
+'+enemyList
+'+ProjectileList
+'+MowerList
+-factory : EntityFactory
++gameElementList
+'Plus compact que tout mettre
++deadElementList
++selectedButton : SelectableButton
++sunCount : Int
++fertilizerCount : Int
+-startGameLoop()
+-startNaturalSunGeneration()
+-startEnemyGeneration()
+-createEnemy(...)
+-update()
++createPlant(...)
++addSun()
++removeSun()
++addFertilizer()
++removeFertilizer()
++endGame()
+}
+GameControl"1" <- "*" Sun : Increments sunCount
+GameControl "1"-[hidden]-"*" Defense
+GameControl "1"-[hidden]-"*" Enemy
+GameElement"*" -* "1" GameControl
+
+abstract class GameElement{
+#{abstract}gameControl
+'#{abstract} context : Context
++{abstract}x : Float
++ {abstract}y : Float
++nextFrame()
++fun isDead() : Boolean
+#{abstract}fun onDeath()
+'+sizeInPx : Int
+'+bitmap : Bitmap
+'+draw(canvas : Canvas)
+'+resizeBitmap(bitmap)
+}
+
+abstract class Entity{
+# {abstract} HP
++changeHP(damage : Int)
+}
+
+class Lawnmower{
+-activated : Boolean
+-defenseList
+-EnemyList
+}
+Lawnmower "0..1"-->"*" Enemy : Attack
+Lawnmower "0..1"-->"*" Defense : Attack
+abstract class ActiveDefense{
+}
+
+
+abstract class Enemy{
+-containFertilizer : Boolean
+-motionState : MotionState
+-previousState : MotionState
++direction : TargetingMode
++defenseList
++burgerList
++isBurning : Boolean
++isFreezing : Boolean
++changeMotionState(MotionState)
++getAttracted(burger)
+}
+
+
+class NormalZombie{
++{static} generationProbability : Int
+}
+class ZombieSunStealer{
++{static} generationProbability : Int
+-resourceList
+-stealSun()
+}
+
+class ConeZombie {
++{static} generationProbability : Int
+}
+
+class BurgerDefense{
++ {static} PRICE : Int
+-attractZombie(enemy)
+}
+
+BurgerDefense "*" --> "*" Enemy : Attract
+
+
+
+class Sunflower{
++ {static} PRICE : Int
+-sunCooldown : Int
+-generationRadius : Float
+-timer : Timer
+-startSunGeneration(radius : Float)
+-createSun(radius : Float)
+}
+
+class Wallnut{
++ {static} PRICE : Int
+}
+
+
+'class Landmine{
+'+ {static} PRICE : Int
+'-chargeTime : Int
+'}
+
+
+abstract class Defense{
++{abstract} square : BoardButton
++getBoosted()
+}
+together{
+abstract class Projectile{
+-enemyList
+}
+abstract class Shooter{
+-timer: Timer
+-startShooting()
+#{abstract} shootProjectile(context : Context)
+#{abstract} boostedShootProjectile(context : Context
+#{abstract} shootingDelay : Int
+}
+
+class NormalProjectile{
+}
+
+class FreezingProjectile{
+-freeze(target : Entity?)
+}
+
+class BurningProjectile{
+-burn(target : Entity?)
+}
+
+class KnockbackProjectile{
+-knockback(target : Entity?)
+}
+class NormalPlant{
++ {static} PRICE : Int
+}
+
+class FastPlant{
++ {static} PRICE : Int
+}
+
+class KnockbackPlant{
++ {static} PRICE : Int
+}
+
+class IcePlant{
++ {static} PRICE : Int
+}
+class FirePlant{
++ {static} PRICE : Int
+}
+}
+
+'FreezingProjectile "1" -> "1" Enemy : freeze
+'BurningProjectile "1" -> "1" Enemy : burn
+'KnockbackProjectile "1" -> "1" Enemy : knockback
+Shooter <|-- KnockbackPlant
+Shooter <|-- FastPlant
+KnockbackPlant "0..1" o-- "*" KnockbackProjectile
+NormalPlant "0..1" o-- "*" NormalProjectile : Shoot
+FastPlant "0..1" o-- "*" NormalProjectile
+FirePlant "0..1" o-- "*" BurningProjectile
+IcePlant "0..1" o-- "*" FreezingProjectile
+Projectile <|-- NormalProjectile
+Projectile <|-- FreezingProjectile
+Projectile <|-- BurningProjectile
+Projectile <|-- KnockbackProjectile
+Projectile "1"-->"1" Enemy : Attack
+ActiveDefense <|-- Shooter
+Entity <|-- Defense
+
+ActiveDefense "*" -- "*" Enemy : Attack
+'ActiveDefense <|-- Landmine
+GameElement <|-- Lawnmower
+GameElement <|-- Projectile
+Defense <|-- Wallnut
+Defense <|-- Sunflower
+
+Shooter <|-- IcePlant
+Shooter <|-- NormalPlant
+Shooter <|-- FirePlant
+
+Enemy <|--ConeZombie
+Enemy <|--ZombieSunStealer
+Defense <|-- BurgerDefense
+Enemy <|-- NormalZombie
+GameElement <|-- Entity
+Resource <|-- Sun
+Defense <|-- ActiveDefense
+Entity <|-- Enemy
+Sunflower "0..1" -> "*" Sun
+ZombieSunStealer "1" -> "*" Sun : steals sun
+@enduml

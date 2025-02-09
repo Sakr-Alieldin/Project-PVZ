@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam dpi 300
+
+interface Observer{
++update(arg : Boolean)
+}
+
+interface Observable{
++observer: MutableList<Observer>
++remove(observer : Observer)
++ add(observer : Observer)
++ notifyObservers(arg : Boolean)
+}
+
+abstract class Shooter{
+}
+
+abstract class Enemy{
+}
+
+Observer <|.. Shooter
+Observable <|.. Enemy
+Observable"*" o-- "*"Observer
+
+@enduml

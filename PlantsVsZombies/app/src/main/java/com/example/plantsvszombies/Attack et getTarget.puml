@@ -1,0 +1,49 @@
+@startuml
+'https://plantuml.com/class-diagram
+interface TargetGetter{
++direction : TargetingMode
++range : Int
++ x : Float
++ y : Float
++ getTargets(entityList, targetingMode = direction) : List<Entity>
+}
+interface Attack{
++attackDamage
++ attack(target : Entity?)
+}
+'interface Observer{
+'+update(arg : Boolean)
+'}
+
+'interface Observable{
+'+observer: MutableList<Observer>
+'+remove(observer : Observer)
+'+ add(observer : Observer)
+'+ notifyObservers(arg : Boolean)
+'}
+
+''Observer <|.. Shooter
+'Observable <|.. Enemy
+'Observable"1" o-- "*"Observer
+together {
+abstract class Enemy{
+}
+abstract class Shooter{
+}
+class BurgerDefense{
+}
+abstract class Projectile{
+}
+Enemy "*" ->"*" BurgerDefense : attack
+Enemy "*" -> "*" Shooter : attack
+Enemy "0..1" <- "*"Projectile : attack
+TargetGetter <|.. Projectile
+Attack <|.. Projectile
+TargetGetter<|.. Enemy
+Attack <|.. Enemy
+TargetGetter <|.. BurgerDefense
+Attack <|.. Shooter
+BurgerDefense "*" -> "*" Enemy : attract
+Projectile "*" -o "0..1" Shooter : shoot
+
+@enduml

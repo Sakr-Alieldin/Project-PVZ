@@ -1,0 +1,44 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+top to bottom direction
+actor Player
+
+rectangle "Plants vs Zombies" {
+  Player -- (Collect Sun)
+  Player -- (Select and Place Plant)
+  Player -- (Use Special Items)
+
+  rectangle "Enemies" {
+    (Normal Enemy)
+    (Sun Stealer)
+  }
+
+  rectangle "Plants" {
+    (Sunflower)
+    (Shooter)
+    (Wallnut)
+    (Burger)
+  }
+
+  rectangle "Special Items" {
+    (Shovel)
+    (Fertilizer)
+  }
+
+  rectangle "User Interface" {
+    (Board Buttons)
+    (Shop Buttons)
+  }
+
+  (Select and Place Plant) -- (Sunflower)
+  (Select and Place Plant) -- (Shooter)
+  (Select and Place Plant) -- (Wallnut)
+  (Select and Place Plant) -- (Burger)
+
+  (Normal Enemy) -- (Shooter) : attacks
+  (Sun Stealer) -- (Sunflower) : steals
+
+  (Use Special Items) -- (Shovel) : removes
+  (Use Special Items) -- (Fertilizer) : boosts
+}
+@enduml

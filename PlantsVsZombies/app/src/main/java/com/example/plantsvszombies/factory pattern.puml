@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+EntityFactory "1"--* "1" GameControl
+class EntityFactory{
++createPlant(...) : Defense
++createEnemy(...) : Enemy
+}
+enum PlantType {
+    Sunflower
+    NormalPlant
+    FastPlant
+    KnockbackPlant
+    FreezePlant
+    FirePlant
+    Wallnut
+    BurgerDefense
+}
+
+enum EnemyType {
+    NormalZombie
+    ZombieSunStealer
+    ConeZombie
+}
+
+EntityFactory -> PlantType
+EnemyType <- EntityFactory
+
+class GameControl{
+-factory : EntityFactory
+...
+__
+-startEnemyGeneration()
+-createEnemy(...)
++createPlant(...)
+...
+
+}
+@enduml
